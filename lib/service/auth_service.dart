@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -6,16 +7,38 @@ import 'package:learning_firebase/model/user.dart';
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final _facebookLogin = new FacebookLogin();
 
   // create user obj based on firebase user
-  User _userFromFirebaseUser(FirebaseUser user) {
-    return user != null ? User(uid: user.uid) : null;
+  Future<User> _userFromFirebaseUser(FirebaseUser firebaseUser) async {
+    if (firebaseUser != null) {
+      // Check is already sign up
+      final QuerySnapshot result = await Firestore.instance
+          .collection('users')
+          .where('id', isEqualTo: firebaseUser.uid)
+          .getDocuments();
+      final List<DocumentSnapshot> documents = result.documents;
+      if (documents.length == 0) {
+        // Update data to server if new user
+        Firestore.instance
+            .collection('users')
+            .document(firebaseUser.uid)
+            .setData({
+          'nickname': firebaseUser.displayName,
+          'photoUrl': firebaseUser.photoUrl,
+          'id': firebaseUser.uid
+        });
+      }
+      return  User(id: firebaseUser.uid);
+    }
+    return null;
+    // return user != null ? User(uid: user.uid) : null;
   }
 
-  // auth change user stream
-  Stream<User> get user {
-    return _auth.onAuthStateChanged.map(_userFromFirebaseUser);
-  }
+  // // auth change user stream
+  // Stream<User> get user {
+  //   return _auth.onAuthStateChanged.map(_userFromFirebaseUser);
+  // }
 
   // register with email and password
   Future registerWithEmailAndPassword(String email, String password) async {
@@ -54,6 +77,14 @@ class AuthService {
         print("Google User Signed Out");
         return;
       });
+
+      _facebookLogin.isLoggedIn.then((s) async {
+        await _facebookLogin.logOut();
+
+        print("Facebook User Signed Out");
+        return;
+      });
+
       return await _auth.signOut();
     } catch (error) {
       print(error.toString());
@@ -83,18 +114,17 @@ class AuthService {
       user = (await _auth.signInWithCredential(credential)).user;
     }
 
-    return user;
+    return _userFromFirebaseUser(user);
   }
 
   // signInWithFacebook
   Future signInWithFacebook() async {
     // hold the instance of the authenticated user
     FirebaseUser user;
-    final facebookLogin = new FacebookLogin();
 
     // Trigger the sign-in flow
     final FacebookLoginResult result =
-        await facebookLogin.logIn(['email', 'public_profile']);
+        await _facebookLogin.logIn(['email', 'public_profile']);
     //     .then((result) async {
     // Create a credential from the access token
     final AuthCredential facebookAuthCredential =
@@ -118,13 +148,7 @@ class AuthService {
 
     user = (await _auth.signInWithCredential(facebookAuthCredential)).user;
     // Once signed in, return the UserCredential
-    return user;
+    // return user;
+    return _userFromFirebaseUser(user);
   }
-
-  // // signOutGoogle
-  // Future signOutGoogle() async {
-  //   await _googleSignIn.signOut();
-
-  //   print("User Signed Out");
-  // }
 }

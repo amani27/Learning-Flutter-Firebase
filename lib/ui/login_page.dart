@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:learning_firebase/model/user.dart';
 import 'package:learning_firebase/service/auth_service.dart';
 import 'package:learning_firebase/ui/home.dart';
 import 'package:learning_firebase/ui/register_page.dart';
@@ -92,7 +95,7 @@ class _LoginPageState extends State<LoginPage> {
                                 SharedPreferences localStorage =
                                     await SharedPreferences.getInstance();
                                 localStorage.setString(
-                                    'userData', result.toString());
+                                    'userData', json.encode(result));
 
                                 if (result == null) {
                                   setState(() {
@@ -158,7 +161,7 @@ class _LoginPageState extends State<LoginPage> {
                                 _googleLoading = true;
                               });
                               print('Google Sign In tapped');
-                              FirebaseUser user =
+                              User user =
                                   await _auth.signInWithGoogle();
 
                               if (user == null) {
@@ -209,7 +212,7 @@ class _LoginPageState extends State<LoginPage> {
                       onPressed: () async {
                         // if (_formKey.currentState.validate()) {
                         print('Facebook Sign In tapped');
-                        FirebaseUser user = await _auth.signInWithFacebook();
+                        User user = await _auth.signInWithFacebook();
 
                         if (user == null) {
                           setState(() {

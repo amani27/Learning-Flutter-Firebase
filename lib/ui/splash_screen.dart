@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:learning_firebase/model/user.dart';
@@ -27,10 +28,14 @@ class _SplashScreenState extends State<SplashScreen> {
   onDoneLoading() async {
     SharedPreferences localStorage = await SharedPreferences.getInstance();
     // localStorage.clear();
-    var user = localStorage.getString('userData');
-    print(user);
+    var res = localStorage.getString('userData');
+    print('$res --- res');
+    var body = json.decode(res);
+    print('body ----- $body');
+    var localUser = User.fromJson(body);
+    print('localUser id ----- ${localUser.id}');
 
-    if (user == null) {
+    if (res == null) {
       Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => LoginPage()));
     } else {
