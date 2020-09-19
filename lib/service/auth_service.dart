@@ -63,6 +63,7 @@ class AuthService {
       FirebaseUser user = result.user;
       return _userFromFirebaseUser(user);
     } catch (error) {
+    // } on FirebaseAuthException catch (error) {
       print(error.toString());
       return null;
     }

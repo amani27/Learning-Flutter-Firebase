@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:learning_firebase/model/user.dart';
 import 'package:learning_firebase/service/auth_service.dart';
 import 'package:learning_firebase/ui/home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -75,14 +78,9 @@ class _RegisterPageState extends State<RegisterPage> {
                               setState(() {
                                 _loading = true;
                               });
-                              dynamic result =
+                              User result =
                                   await _auth.registerWithEmailAndPassword(
                                       email, password);
-
-                              SharedPreferences localStorage =
-                                  await SharedPreferences.getInstance();
-                              localStorage.setString(
-                                  'userData', result.toString());
 
                               if (result == null) {
                                 setState(() {
@@ -91,6 +89,11 @@ class _RegisterPageState extends State<RegisterPage> {
                                 });
                                 return;
                               }
+
+                              SharedPreferences localStorage =
+                                  await SharedPreferences.getInstance();
+                              localStorage.setString(
+                                  'userData', json.encode(result));
 
                               Navigator.of(context).pushReplacement(
                                   MaterialPageRoute(

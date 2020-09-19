@@ -155,7 +155,7 @@ class _SettingsPageState extends State<SettingsPage> {
       var updatedUser = {
         'id': localUser.id,
         'nickname': controllerNickname.text,
-        'photoUrl': localUser.photoUrl == null ? '' : localUser.photoUrl
+        'photoUrl': localUser.photoUrl == null ? null : localUser.photoUrl
       };
 
       localStorage.setString('userData', json.encode(updatedUser));
@@ -194,8 +194,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         child: Stack(
                           children: <Widget>[
                             (avatarImageFile == null)
-                                ? (localUser.photoUrl != null ||
-                                        localUser.photoUrl != ''
+                                ? (localUser.photoUrl != null)
                                     ? Material(
                                         child: CachedNetworkImage(
                                           placeholder: (context, url) =>
@@ -223,7 +222,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                         Icons.account_circle,
                                         size: 90.0,
                                         color: Colors.grey,
-                                      ))
+                                      )
                                 : Material(
                                     child: Image.file(
                                       avatarImageFile,

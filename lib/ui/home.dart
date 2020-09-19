@@ -6,6 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:learning_firebase/model/user.dart';
 import 'package:learning_firebase/service/auth_service.dart';
+import 'package:learning_firebase/ui/chat_page.dart';
 import 'package:learning_firebase/ui/login_page.dart';
 import 'package:learning_firebase/ui/settings_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -49,6 +50,7 @@ class _HomeState extends State<Home> {
       },
       child: Scaffold(
         appBar: AppBar(
+          automaticallyImplyLeading: false,
           title: Text('HOME'),
           actions: <Widget>[
             PopupMenuButton<Choice>(
@@ -105,12 +107,16 @@ class _HomeState extends State<Home> {
                   ),
                 );
               } else {
-                return ListView.builder(
-                  padding: EdgeInsets.all(10.0),
-                  itemBuilder: (context, index) =>
-                      buildItem(context, snapshot.data.documents[index]),
-                  itemCount: snapshot.data.documents.length,
-                );
+                return snapshot.data.documents.length == 1
+                    ? Center(
+                        child: Text('No users to show!'),
+                      )
+                    : ListView.builder(
+                        padding: EdgeInsets.all(10.0),
+                        itemBuilder: (context, index) =>
+                            buildItem(context, snapshot.data.documents[index]),
+                        itemCount: snapshot.data.documents.length,
+                      );
               }
             },
           ),
@@ -219,7 +225,17 @@ class _HomeState extends State<Home> {
       return Container(
         margin: EdgeInsets.only(bottom: 10.0, left: 5.0, right: 5.0),
         child: FlatButton(
-          onPressed: () {},
+          onPressed: () {
+            print('onPressed onPressed ------------------------ hi');
+            print(
+                'peerId: ${document.data['id']}, peerAvatar: ${document.data['photoUrl']}');
+            print('onPressed onPressed ------------------------ bye');
+
+            Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => ChatPage(document.data['id'],
+                    document.data['photoUrl'], document.data['nickname'])));
+            // .push(MaterialPageRoute(builder: (context) => ChatPage(peerId: document.data['id'], peerAvatar: document.data['photoUrl'],)));
+          },
           color: Colors.blueGrey[100],
           padding: EdgeInsets.fromLTRB(25.0, 10.0, 25.0, 10.0),
           shape: RoundedRectangleBorder(
@@ -278,7 +294,7 @@ class _HomeState extends State<Home> {
 
   /////////////////// onChoiceSelected method start /////////////////////
   Future<void> _onChoiceSelected(Choice choice) async {
-    if (choice.title == 'Log out') {
+    if (choice.title == 'Log Out') {
       await _auth.signOut();
 
       SharedPreferences localStorage = await SharedPreferences.getInstance();

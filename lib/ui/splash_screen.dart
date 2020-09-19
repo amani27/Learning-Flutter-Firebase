@@ -30,15 +30,19 @@ class _SplashScreenState extends State<SplashScreen> {
     // localStorage.clear();
     var res = localStorage.getString('userData');
     print('$res --- res');
-    var body = json.decode(res);
-    print('body ----- $body');
-    var localUser = User.fromJson(body);
-    print('localUser id ----- ${localUser.id}');
+    // var body = json.decode(res);
+    // print('body ----- $body');
+    // var localUser = User.fromJson(body);
+    // print('localUser id ----- ${localUser.id}');
 
     if (res == null) {
       Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => LoginPage()));
     } else {
+      var body = json.decode(res);
+      print('body ----- $body');
+      var localUser = User.fromJson(body);
+      print('localUser id ----- ${localUser.id}');
       Navigator.of(context)
           .pushReplacement(MaterialPageRoute(builder: (context) => Home()));
     }
