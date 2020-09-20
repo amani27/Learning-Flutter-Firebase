@@ -97,6 +97,7 @@ class _HomeState extends State<Home> {
           // ],
         ),
         body: Container(
+          //  StreamBuilder helps automatically manage the streams state and disposal of the stream when it's no longer used within your app
           child: StreamBuilder(
             stream: Firestore.instance.collection('users').snapshots(),
             builder: (context, snapshot) {

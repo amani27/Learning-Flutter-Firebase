@@ -65,6 +65,8 @@ class _ChatPageState extends State<ChatPage> {
   //////////////////////// _uploadImage method start //////////////////////
   _uploadImage() async {
     String fileName = DateTime.now().millisecondsSinceEpoch.toString();
+
+    // Cloud Storage is designed to help quickly and easily store and serve user-generated content, such as photos and videos.
     StorageReference reference = FirebaseStorage.instance.ref().child(fileName);
     StorageUploadTask uploadTask = reference.putFile(image);
     StorageTaskSnapshot storageTaskSnapshot = await uploadTask.onComplete;
@@ -90,12 +92,14 @@ class _ChatPageState extends State<ChatPage> {
     if (content.trim() != '') {
       textEditingController.clear();
 
+      // // Create a reference to the document the transaction will use
       var documentReference = Firestore.instance
           .collection('messages')
           .document(groupChatId)
           .collection(groupChatId)
           .document(DateTime.now().millisecondsSinceEpoch.toString());
 
+      // Transactions are a way to ensure that a write operation only occurs using the latest data available on the server
       Firestore.instance.runTransaction((transaction) async {
         transaction.set(
           documentReference,
@@ -207,8 +211,6 @@ class _ChatPageState extends State<ChatPage> {
           leading: IconButton(
             onPressed: () {
               _onBackPressed();
-              // Navigator.of(context).pushReplacement(
-              //     MaterialPageRoute(builder: (context) => Home()));
             },
             icon: Icon(
               Icons.arrow_back,

@@ -3,10 +3,12 @@ import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:learning_firebase/model/user.dart';
 import 'package:learning_firebase/service/auth_service.dart';
 import 'package:learning_firebase/ui/home.dart';
+import 'package:learning_firebase/ui/phone_login_page.dart';
 import 'package:learning_firebase/ui/register_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -24,8 +26,12 @@ class _LoginPageState extends State<LoginPage> {
   String password = '';
   bool _loading = false;
   bool _googleLoading = false;
+  bool _facebookLoading = false;
+  bool _phoneLoading = false;
 
   String error = '';
+
+  TextEditingController phoneController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -104,13 +110,14 @@ class _LoginPageState extends State<LoginPage> {
                                       error = 'Invalid email/password!';
                                       _loading = false;
                                     });
+                                    Fluttertoast.showToast(msg: error);
                                     return;
                                   }
 
-                                  SharedPreferences localStorage =
-                                      await SharedPreferences.getInstance();
-                                  localStorage.setString(
-                                      'userData', json.encode(result));
+                                  // SharedPreferences localStorage =
+                                  //     await SharedPreferences.getInstance();
+                                  // localStorage.setString(
+                                  //     'userData', json.encode(result));
 
                                   Navigator.of(context).pushReplacement(
                                       MaterialPageRoute(
@@ -173,116 +180,114 @@ class _LoginPageState extends State<LoginPage> {
                                 if (user == null) {
                                   setState(() {
                                     error = 'Invalid email/password!';
+                                    print('null returned');
                                     _googleLoading = false;
                                   });
+                                  Fluttertoast.showToast(
+                                      msg: 'Something went wrong!');
                                   return;
                                 }
 
-                                SharedPreferences localStorage =
-                                    await SharedPreferences.getInstance();
-                                localStorage.setString(
-                                    'userData', json.encode(user));
+                                // SharedPreferences localStorage =
+                                //     await SharedPreferences.getInstance();
+                                // localStorage.setString(
+                                //     'userData', json.encode(user));
 
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) => Home()));
-                              }
-                        // if (_formKey.currentState.validate()) {
-                        // print(email);
-                        // print(password);
-                        // // dynamic result = await _auth.signInWithEmailAndPassword(
-                        //     email, password);
-                        // print(result);
-
-                        // SharedPreferences localStorage =
-                        //     await SharedPreferences.getInstance();
-                        // localStorage.setString('userData', result.toString());
-
-                        // if (result == null) {
-                        //   setState(() {
-                        //     error = 'Invalid email/password!';
-                        //   });
-                        //   return;
-                        // }
-
-                        // Navigator.of(context).pushReplacement(
-                        //     MaterialPageRoute(builder: (context) => Home()));
-                        // }
-                        ),
+                              }),
                   ),
 
                   Container(
                     width: 200,
                     child: RaisedButton(
                         color: Colors.lime[800],
-                        child: Text(
-                          'Sign in with Facebook',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        onPressed: () async {
-                          // if (_formKey.currentState.validate()) {
-                          print('Facebook Sign In tapped');
-                          User user = await _auth.signInWithFacebook();
+                        child: _facebookLoading
+                            ? CircularProgressIndicator()
+                            : Text(
+                                'Sign in with Facebook',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                        onPressed: _facebookLoading
+                            ? null
+                            : () async {
+                                setState(() {
+                                  _facebookLoading = true;
+                                });
+                                // if (_formKey.currentState.validate()) {
+                                print('Facebook Sign In tapped');
+                                User user = await _auth.signInWithFacebook();
 
-                          if (user == null) {
-                            setState(() {
-                              error = 'Invalid email/password!';
-                              _googleLoading = false;
-                            });
-                            return;
-                          }
+                                if (user == null) {
+                                  setState(() {
+                                    error = 'Invalid email/password!';
+                                    print('null returned');
+                                    _facebookLoading = false;
+                                  });
+                                  Fluttertoast.showToast(
+                                      msg: 'Something went wrong!');
+                                  return;
+                                }
 
-                          SharedPreferences localStorage =
-                              await SharedPreferences.getInstance();
-                          localStorage.setString('userData', json.encode(user));
+                                // SharedPreferences localStorage =
+                                //     await SharedPreferences.getInstance();
+                                // localStorage.setString(
+                                //     'userData', json.encode(user));
 
-                          Navigator.push(context,
-                              MaterialPageRoute(builder: (context) => Home()));
-
-//
-//  var facebookLogin = FacebookLogin();
-//     var facebookLoginResult =
-//         await facebookLogin.logInWithReadPermissions(['email']);
-//      switch (facebookLoginResult.status) {
-//       case FacebookLoginStatus.error:
-//         print("Error");
-//         onLoginStatusChanged(false);
-//         break;
-//       case FacebookLoginStatus.cancelledByUser:
-//         print("CancelledByUser");
-//         onLoginStatusChanged(false);
-//         break;
-//       case FacebookLoginStatus.loggedIn:
-//         print("LoggedIn");
-//         onLoginStatusChanged(true);
-//         break;
-// }
-//
-
-                          // print(email);
-                          // print(password);
-                          // dynamic result = await _auth.signInWithEmailAndPassword(
-                          //     email, password);
-                          // print(result);
-
-                          // SharedPreferences localStorage =
-                          //     await SharedPreferences.getInstance();
-                          // localStorage.setString('userData', result.toString());
-
-                          // if (result == null) {
-                          //   setState(() {
-                          //     error = 'Invalid email/password!';
-                          //   });
-                          //   return;
-                          // }
-
-                          // Navigator.of(context).pushReplacement(
-                          //     MaterialPageRoute(builder: (context) => Home()));
-                          // }
-                        }),
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => Home()));
+                              }),
                   ),
                   ///////////////////// Social Authentication Options /////////////////////
+
+                  ///////////////////// Phone Authentication Option Start ////////////////////
+                  Container(
+                    width: 200,
+                    child: RaisedButton(
+                        color: Colors.lime[800],
+                        child: _phoneLoading
+                            ? CircularProgressIndicator()
+                            : Text(
+                                'Sign in with Phone',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                        onPressed: _phoneLoading
+                            ? null
+                            : () async {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            PhoneLoginPage()));
+                                // _showModalBottomSheet(context);
+                                //   setState(() {
+                                //     _phoneLoading = true;
+                                //   });
+
+                                //   print('Phone Sign In tapped');
+                                //   User user = await _auth.signInWithPhone();
+
+                                //   if (user == null) {
+                                //     setState(() {
+                                //       print('null returned');
+                                //       _phoneLoading = false;
+                                //     });
+                                //     Fluttertoast.showToast(
+                                //         msg: 'Something went wrong!');
+                                //     return;
+                                //   }
+
+                                //   Navigator.push(
+                                //       context,
+                                //       MaterialPageRoute(
+                                //           builder: (context) => Home()));
+                              }),
+                  ),
+                  ///////////////////// Phone Authenticatio Option Start ////////////////////
                 ],
               ),
             ),
@@ -383,5 +388,97 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
   ///////////////////////// dialog  ui end ///////////////////////////////
+
+  ////////////////////// modal bottom sheet ui start //////////////////////////
+  _showModalBottomSheet(BuildContext ctx) {
+    phoneController.text = '';
+
+    showModalBottomSheet(
+      elevation: 5,
+      isScrollControlled: true,
+      context: ctx,
+      builder: (_) {
+        return Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            // borderRadius: BorderRadius.all(Radius.circular(15)),
+          ),
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+            top: 5,
+            left: 5,
+            right: 5,
+          ),
+          margin: EdgeInsets.all(5.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Container(
+                margin: EdgeInsets.only(top: 25, left: 10, right: 10),
+                child: TextField(
+                  decoration: InputDecoration(
+                    labelText: 'Phone Number',
+                    focusedBorder: OutlineInputBorder(
+                      // borderRadius: BorderRadius.circular(15),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).primaryColor,
+                      ),
+                    ),
+                    disabledBorder: OutlineInputBorder(
+                      // borderRadius: BorderRadius.circular(15),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).primaryColor,
+                      ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      // borderRadius: BorderRadius.circular(15),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).primaryColor,
+                      ),
+                    ),
+                  ),
+                  controller: phoneController,
+                ),
+              ),
+              Container(
+                alignment: Alignment.bottomCenter,
+                margin: EdgeInsets.all(15),
+                child: RaisedButton(
+                  child: Text(
+                    'ADD',
+                  ),
+                  onPressed: () async {
+                    //   setState(() {
+                    //     _phoneLoading = true;
+                    //   });
+
+                    //   print('Phone Sign In tapped');
+                    //   User user = await _auth.signInWithPhone();
+
+                    //   if (user == null) {
+                    //     setState(() {
+                    //       print('null returned');
+                    //       _phoneLoading = false;
+                    //     });
+                    //     Fluttertoast.showToast(msg: 'Something went wrong!');
+                    //     return;
+                    //   }
+
+                    //   Navigator.push(context,
+                    //       MaterialPageRoute(builder: (context) => Home()));
+                  },
+                  textColor: Colors.white,
+                  color: Theme.of(context).primaryColor,
+                ),
+              )
+            ],
+          ),
+        );
+      },
+    );
+  }
+  ////////////////////// modal bottom sheet ui end //////////////////////////
 
 }

@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:learning_firebase/model/user.dart';
+import 'package:learning_firebase/ui/home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -43,6 +44,10 @@ class _SettingsPageState extends State<SettingsPage> {
     print('body ----- $body');
     localUser = User.fromJson(body);
     print('localUser id ----- ${localUser.id}');
+
+    // var documentReference =
+    //     Firestore.instance.collection('users').document(localUser.id).get();
+    // print('documentReference ---- $documentReference');
 
     setState(() {
       isLoading = false;
@@ -175,6 +180,16 @@ class _SettingsPageState extends State<SettingsPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('SETTINGS'),
+        automaticallyImplyLeading: false,
+        leading: IconButton(
+          onPressed: () {
+            Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (context) => Home()));
+          },
+          icon: Icon(
+            Icons.arrow_back,
+          ),
+        ),
       ),
       body: isLoading
           ? Center(
