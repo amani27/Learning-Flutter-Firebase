@@ -39,9 +39,9 @@ class AuthService {
         });
 
         var newUser = {
-          'id': documents[0].data['id'],
-          'nickname': documents[0].data['nickname'],
-          'photoUrl': documents[0].data['photoUrl'],
+          'id': firebaseUser.uid,
+          'nickname': firebaseUser.displayName,
+          'photoUrl': firebaseUser.photoUrl,
         };
 
         print('newUser ----- $newUser');
@@ -279,8 +279,7 @@ class AuthService {
     //   },
     // );
 
-
-      print('smsCode: $otp //////////////// verificationId: $verId');
+    print('smsCode: $otp //////////////// verificationId: $verId');
 
     // Create a PhoneAuthCredential with the code
     AuthCredential phoneAuthCredential = PhoneAuthProvider.getCredential(

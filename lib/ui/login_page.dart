@@ -100,7 +100,7 @@ class _LoginPageState extends State<LoginPage> {
                                   print('Sign In tapped');
                                   print(email);
                                   print(password);
-                                  dynamic result =
+                                  User result =
                                       await _auth.signInWithEmailAndPassword(
                                           email, password);
                                   print(result);
